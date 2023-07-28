@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-qc@3y#z)!307s8p8kg-jnsf25!1(80zvk8(d!0cflto+ml^_zd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app']
 
 # Application definition
 
@@ -73,8 +73,10 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'vending_machine.wsgi.application'
-WSGI_APPLICATION = 'vercel_app.wsgi.app'
+if 'VERCEL' in os.environ:
+    WSGI_APPLICATION = 'vercel_app.wsgi.app'
+else:
+    WSGI_APPLICATION = 'vending_machine.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
