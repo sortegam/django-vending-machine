@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "vending_machine/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "vending_machine/wsgi.py"
+    }
+  ]
+}
