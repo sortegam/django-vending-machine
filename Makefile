@@ -1,7 +1,7 @@
 up:
 	python manage.py runserver
 
-makemigrate:
+makemigrations:
 	python manage.py makemigrations
 
 migrate:
@@ -9,3 +9,7 @@ migrate:
 
 dbshell:
 	python manage.py dbshell
+	
+
+collectstatic:
+	python manage.py collectstatic
