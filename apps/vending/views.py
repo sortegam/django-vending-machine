@@ -76,5 +76,7 @@ class BuyView(APIView):
             user.save()
             
             return Response(status=status.HTTP_200_OK, data={"balance": user.balance})
+        except VendingMachineSlot.DoesNotExist:
+            return Response(status=400, data="Slot does not exist")
         except User.DoesNotExist:
             return Response(status=401, data="Bad credentials")
