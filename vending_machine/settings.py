@@ -155,5 +155,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
 
-
+# We do this because this is a small project for learning, but we should not allow
+# all origins
 CORS_ALLOW_ALL_ORIGINS = True
