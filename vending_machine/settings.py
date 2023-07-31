@@ -84,7 +84,7 @@ else:
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-if env.str('TESTING', False):
+if env.str('VENDING_TESTING', "False") == "True":
     print("USING IN MEMORY SQLITE3...")
     DATABASES = {
         'default': {
