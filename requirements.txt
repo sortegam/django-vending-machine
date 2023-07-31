@@ -5,3 +5,4 @@ django-environ==0.10.0
 psycopg2-binary~=2.9.5
 djangorestframework==3.14.0
 pytest-dotenv==0.5.2
+django-cors-headers==4.2.0
