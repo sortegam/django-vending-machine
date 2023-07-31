@@ -26,6 +26,7 @@ urlpatterns = [
     path("login/", vending_views.UserLoginView.as_view()),
     path("balance/add/", vending_views.BalanceViewSet.as_view({'post': 'add'})),
     path("balance/refund/", vending_views.BalanceViewSet.as_view({'post': 'refund'})),
+    path("buy/", vending_views.BuyView.as_view()),
     path("slots/", include([
       #  path("<uuid:id>", vending_views.MyDetailViewToBeDone.as_view()),
         path("", vending_views.VendingMachineSlotView.as_view()),
