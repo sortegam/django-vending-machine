@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
 from apps.health.views import healthcheck 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -24,6 +23,7 @@ import apps.vending.views as vending_views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("healthcheck/", healthcheck),
+    path("login/", vending_views.UserView.as_view()),
     path("slots/", include([
       #  path("<uuid:id>", vending_views.MyDetailViewToBeDone.as_view()),
         path("", vending_views.VendingMachineSlotView.as_view()),
