@@ -8,8 +8,8 @@ class User(models.Model):
         db_table = "user"
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    email = models.EmailField()
-    name = models.CharField(max_length=200)
+    username = models.CharField(max_length=100, unique=True)
+    full_name = models.CharField(max_length=200)
     balance = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal("0.00"))])
 
 class Product(models.Model):
@@ -22,6 +22,9 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True)
 
+    def __str__(self):
+        return self.name
+
 class VendingMachineSlot(models.Model):
     class Meta:
         db_table = "vending_machine_slot"
@@ -31,3 +34,6 @@ class VendingMachineSlot(models.Model):
     quantity = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)])
     row = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)])
     column = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)])
+
+    def __str__(self):
+        return "[{row},{col}] {name} - (Stock: {stock})".format(row=self.row, col=self.column, name=self.product, stock=self.quantity)

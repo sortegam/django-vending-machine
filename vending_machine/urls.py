@@ -18,10 +18,16 @@ from django.urls import path
 from apps.health.views import healthcheck 
 from django.conf.urls.static import static
 from django.conf import settings
+from django.urls import path, include
+import apps.vending.views as vending_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("healthcheck/", healthcheck)
+    path("healthcheck/", healthcheck),
+    path("slots/", include([
+      #  path("<uuid:id>", vending_views.MyDetailViewToBeDone.as_view()),
+        path("", vending_views.VendingMachineSlotView.as_view()),
+    ]))
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
