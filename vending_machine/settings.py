@@ -85,6 +85,14 @@ else:
 
 
 if env.str('TESTING', False):
+    print("USING IN MEMORY SQLITE3...")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+else:
     print("USING POSTGRES...")
     DATABASES = {
         "default": {
@@ -94,14 +102,6 @@ if env.str('TESTING', False):
             "PASSWORD": env.str("POSTGRES_PASSWORD"),
             "HOST": env.str("POSTGRES_HOST"),
             "PORT": "5432",
-        }
-    }
-else:
-    print("USING IN MEMORY SQLITE3...")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
         }
     }
 
