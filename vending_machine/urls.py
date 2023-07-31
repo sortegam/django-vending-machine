@@ -23,11 +23,13 @@ import apps.vending.views as vending_views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("healthcheck/", healthcheck),
-    path("login/", vending_views.UserView.as_view()),
+    path("login/", vending_views.UserLoginView.as_view()),
+    path("balance/add/", vending_views.BalanceViewSet.as_view({'post': 'add'})),
+    path("balance/refund/", vending_views.BalanceViewSet.as_view({'post': 'refund'})),
     path("slots/", include([
       #  path("<uuid:id>", vending_views.MyDetailViewToBeDone.as_view()),
         path("", vending_views.VendingMachineSlotView.as_view()),
-    ]))
+    ])),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
