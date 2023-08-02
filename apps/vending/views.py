@@ -66,9 +66,10 @@ class BuyView(APIView):
             product = slot.product
             final_balance = user.balance - product.price
             if slot.quantity == 0:
-                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data="There are products left in the slot")
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data={"error": "There are products left in "
+                                                                                      "the slot"})
             if final_balance < 0:
-                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data="Not enough balance to purchase")
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data={"error": "Not enough balance to purchase"})
 
             slot.quantity -= 1
             user.balance = final_balance
@@ -77,4 +78,4 @@ class BuyView(APIView):
 
             return Response(status=status.HTTP_200_OK, data={"balance": user.balance})
         except VendingMachineSlot.DoesNotExist:
-            return Response(status=400, data="Slot does not exist")
+            return Response(status=400, data={"error": "Slot does not exist"})
