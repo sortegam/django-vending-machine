@@ -11,7 +11,7 @@ class User(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     username = models.CharField(max_length=100, unique=True)
     full_name = models.CharField(max_length=200)
-    balance = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal("0.00"))])
+    balance = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal("0.00")), MaxValueValidator(Decimal("99.99"))])
     objects = models.Manager()
     
     def __str__(self):

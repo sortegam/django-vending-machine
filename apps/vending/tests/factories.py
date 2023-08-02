@@ -7,12 +7,14 @@ import factory
 
 
 # This is a framework agnostic factory
-class VendingMachineUserFactory(factory.django.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = "Tom Wambsgans"
-    email = "tomlet@greggs.com"
+    id = Faker("uuid4")
+    username = "johndoe"
+    full_name = "John Doe"
+    balance = 10
 
 
 class ProductFactory(factory.django.DjangoModelFactory):

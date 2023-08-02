@@ -1,10 +1,10 @@
 from unittest.mock import ANY
 
 import pytest
-from apps.vending.tests.factories import ProductFactory, VendingMachineSlotFactory
+from apps.vending.tests.factories import ProductFactory, VendingMachineSlotFactory, UserFactory
 from rest_framework import status
 
-from apps.vending.models import Product, VendingMachineSlot
+from apps.vending.models import Product, VendingMachineSlot, User
 
 
 @pytest.fixture
@@ -24,6 +24,11 @@ def slots_grid(products_list) -> list[VendingMachineSlot]:
             slots.append(slot)
     return slots
 
+
+
+@pytest.fixture
+def existent_user() -> User:
+    return UserFactory()
 
 @pytest.mark.django_db
 class TestListVendingMachineSlots:
@@ -134,3 +139,35 @@ class TestListVendingMachineSlots:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected_response
+
+@pytest.mark.django_db
+class TestUserLoginView:
+    def test_unexistent_user_returns_401_unauthorized(self, client, existent_user):
+        response = client.post(path="/login/", data={"username": "unknown"})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json() == "Bad credentials"
+
+    def test_existent_user_returns_200_OK_with_user_found(self, client, existent_user):
+        response = client.post(path="/login/", data={"username": "johndoe"})
+        assert response.status_code == status.HTTP_200_OK
+        expected_user_data = {
+            "id": ANY,
+            "username": "johndoe",
+            "full_name": "John Doe",
+            "balance": "10.00"
+        }
+        assert response.json() == expected_user_data
+
+    def test_empty_user_returns_401(self, client, existent_user):
+        response = client.post(path="/login/", data={"username": ""})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json() == "Bad credentials"
+
+
+@pytest.mark.django_db
+class TestBalanceViewSet:
+    def test_unexistent_user_returns_401_unauthorized(self, client, existent_user):
+        response = client.post(path="/login/", data={"username": "unknown"})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json() == "Bad credentials"
+
