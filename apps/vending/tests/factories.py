@@ -14,7 +14,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     id = Faker("uuid4")
     username = "johndoe"
     full_name = "John Doe"
-    balance = 10
+    balance = 50
 
 
 class ProductFactory(factory.django.DjangoModelFactory):

@@ -1,3 +1,4 @@
+from _decimal import Decimal
 from unittest.mock import ANY
 
 import pytest
@@ -145,7 +146,7 @@ class TestUserLoginView:
     def test_unexistent_user_returns_401_unauthorized(self, client, existent_user):
         response = client.post(path="/login/", data={"username": "unknown"})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json() == "Bad credentials"
+        assert response.json() == {"error": "Bad credentials"}
 
     def test_existent_user_returns_200_OK_with_user_found(self, client, existent_user):
         response = client.post(path="/login/", data={"username": "johndoe"})
@@ -154,20 +155,70 @@ class TestUserLoginView:
             "id": ANY,
             "username": "johndoe",
             "full_name": "John Doe",
-            "balance": "10.00"
+            "balance": "50.00"
         }
         assert response.json() == expected_user_data
 
     def test_empty_user_returns_401(self, client, existent_user):
         response = client.post(path="/login/", data={"username": ""})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json() == "Bad credentials"
+        assert response.json() == {"error": "Bad credentials"}
 
 
 @pytest.mark.django_db
 class TestBalanceViewSet:
-    def test_unexistent_user_returns_401_unauthorized(self, client, existent_user):
-        response = client.post(path="/login/", data={"username": "unknown"})
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json() == "Bad credentials"
+    def test_balance_drops_to_0_when_refund_is_called(self, client, existent_user):
+        assert existent_user.balance > Decimal("0")
+        response = client.post(path="/balance/refund/", data={"username": existent_user.username})
+        assert response.status_code == status.HTTP_200_OK
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("0")
+        
+    def test_balance_adds_normally_money(self, client, existent_user):
+        assert existent_user.balance == Decimal("50")
+        response = client.post(path="/balance/add/", data={"username": existent_user.username, "amount": 2.5})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"balance": 52.5} 
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("52.5")
+        
+    def test_balance_can_not_add_a_huge_amount(self, client, existent_user):
+        assert existent_user.balance == Decimal("50")
+        response = client.post(path="/balance/add/", data={"username": existent_user.username, "amount": 400})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("50")
 
+    def test_balance_can_not_bypass_the_maximum_balance_of_99_99(self, client, existent_user):
+        assert existent_user.balance == Decimal("50")
+        response = client.post(path="/balance/add/", data={"username": existent_user.username, "amount": 49.99})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"balance": 99.99}
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("99.99")
+        response = client.post(path="/balance/add/", data={"username": existent_user.username, "amount": 0.1})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"error": "Vending machine does not support more than 99.99$"}
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("99.99")
+        
+    def test_balance_can_not_add_negative_numbers(self, client, existent_user):
+        assert existent_user.balance == Decimal("50")
+        response = client.post(path="/balance/add/", data={"username": existent_user.username, "amount": -5})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        existent_user.refresh_from_db()
+        assert existent_user.balance == Decimal("50")
+
+
+@pytest.mark.django_db
+class TestBuyView:
+    def test_it_buys_something_normally(self, client, slots_grid, existent_user):
+        slot_to_purchase = slots_grid[2]
+        assert existent_user.balance == Decimal("50")
+        assert slot_to_purchase.quantity == 2
+        response = client.post(path="/buy/", data={"username": existent_user.username, "slot_id": slot_to_purchase.id})
+        assert response.status_code == status.HTTP_200_OK
+        existent_user.refresh_from_db()
+        slot_to_purchase.refresh_from_db()
+        assert existent_user.balance == Decimal("50") - Decimal(slot_to_purchase.product.price)
+        assert slot_to_purchase.quantity == 1

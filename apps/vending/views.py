@@ -70,7 +70,7 @@ class BuyView(APIView):
             if final_balance < 0:
                 return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data="Not enough balance to purchase")
 
-            slot.quantity = -1
+            slot.quantity -= 1
             user.balance = final_balance
             slot.save()
             user.save()
